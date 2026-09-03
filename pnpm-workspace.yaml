@@ -1,0 +1,5 @@
+engineStrict: true
+savePrefix: "^"
+
+allowBuilds:
+  esbuild: true

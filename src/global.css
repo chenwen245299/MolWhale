@@ -1,0 +1,81 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #141416;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* react-native-web renders every ScrollView as a div; style the scrollbars once
+   here rather than per-component. */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.26);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The drag handles set this on <body> so the cursor does not flicker back to
+   the default whenever the pointer outruns the handle mid-drag. */
+body.mw-resizing-col,
+body.mw-resizing-col * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.mw-resizing-row,
+body.mw-resizing-row * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}
+
+textarea,
+input {
+  font-family: inherit;
+}
+
+/* The sidebar toggle in the content header only exists while the rail is
+   hidden, so it fades in rather than popping as the rail finishes closing. */
+@keyframes mw-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mw-fade-in {
+  animation: mw-fade-in 180ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-fade-in {
+    animation: none;
+  }
+}

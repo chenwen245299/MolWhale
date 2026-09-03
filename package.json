@@ -1,0 +1,53 @@
+{
+  "name": "molwhale",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MolWhale — conversational molecular design workbench",
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.3.0 <25",
+    "pnpm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "env:check": "tauri info",
+    "lint": "eslint . --max-warnings=0",
+    "lint:rust": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings",
+    "format": "prettier --write . && cargo fmt --manifest-path src-tauri/Cargo.toml",
+    "format:check": "prettier --check . && cargo fmt --manifest-path src-tauri/Cargo.toml -- --check",
+    "check": "pnpm lint && pnpm format:check && pnpm build && pnpm lint:rust",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "~2.7.2",
+    "@tauri-apps/plugin-http": "^2.5.9",
+    "@tauri-apps/plugin-opener": "^2.5.4",
+    "lucide-react": "^1.33.0",
+    "openai": "^7.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-native-web": "0.21.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^4.7.0",
+    "babel-plugin-react-native-web": "^0.21.2",
+    "eslint": "^10.9.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^16.5.0",
+    "prettier": "^3.8.1",
+    "react-native": "0.87.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.2",
+    "vite": "^7.2.4"
+  }
+}
