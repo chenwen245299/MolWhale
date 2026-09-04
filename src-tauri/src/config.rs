@@ -26,6 +26,9 @@ pub struct Settings {
     /// UI language tag. `zh-CN` is the default; the frontend owns the list.
     #[serde(default = "default_locale")]
     pub locale: String,
+    /// `light`, `dark`, or `system`. Defaults to following the OS.
+    #[serde(default = "default_theme")]
+    pub theme: String,
     /// Ceiling on tool-call rounds in one answer. A model that has not finished
     /// after this many rounds is going in circles, and each round is billed.
     #[serde(default = "default_max_rounds")]
@@ -38,6 +41,10 @@ fn default_locale() -> String {
     "zh-CN".to_string()
 }
 
+fn default_theme() -> String {
+    "system".to_string()
+}
+
 fn default_max_rounds() -> u32 {
     8
 }
@@ -46,6 +53,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             locale: default_locale(),
+            theme: default_theme(),
             max_tool_rounds: default_max_rounds(),
             system_prompt: String::new(),
         }

@@ -10,10 +10,17 @@ import { WorkspacePicker } from "./shell/WorkspacePicker";
 import { WorkflowsPane } from "./shell/WorkflowsPane";
 import { useDragSplit } from "./shell/useDragSplit";
 import { readExpanded, writeExpanded } from "./shell/expandedState";
+import { useAppliedTheme } from "./shell/useAppliedTheme";
 import { SettingsModal } from "./settings/SettingsModal";
 import { getSettings, type AppSettings } from "./settings/api";
 import { listProviders, type ProviderInfo } from "./providers/api";
-import { ThemeProvider, collapseTransition, darkTokens, useTokens } from "./theme";
+import {
+  ThemeProvider,
+  collapseTransition,
+  useSystemPrefersDark,
+  useTokens,
+  type ThemeMode,
+} from "./theme";
 import { useT } from "./i18n";
 import { Banner } from "./components/ui";
 import {
@@ -37,7 +44,7 @@ import {
  * horizontal seam of its own (see `RightSidebar`). All of them go through
  * `useDragSplit`, so the sizes persist and the clamping behaves identically.
  */
-function Shell() {
+function Shell({ onThemeChange }: { onThemeChange: (mode: ThemeMode) => void }) {
   const tokens = useTokens();
   const t = useT();
   const { setLocale } = useI18n();
@@ -60,6 +67,7 @@ function Shell() {
   const [mcpServers, setMcpServers] = useState<McpServerConfig[]>([]);
   const [settings, setSettings] = useState<AppSettings>({
     locale: "zh-CN",
+    theme: "system",
     maxToolRounds: 8,
     systemPrompt: "",
   });
@@ -193,13 +201,22 @@ function Shell() {
       if (loadedSettings) {
         setSettings(loadedSettings);
         setLocale(loadedSettings.locale);
+        onThemeChange(loadedSettings.theme);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [storage, reloadProjects, reloadProviders, reloadMcpServers, reloadConversations, setLocale]);
+  }, [
+    storage,
+    reloadProjects,
+    reloadProviders,
+    reloadMcpServers,
+    reloadConversations,
+    setLocale,
+    onThemeChange,
+  ]);
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -386,7 +403,10 @@ function Shell() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         settings={settings}
-        onSettingsChange={setSettings}
+        onSettingsChange={(next) => {
+          setSettings(next);
+          onThemeChange(next.theme);
+        }}
         providers={providers}
         reloadProviders={reloadProviders}
         mcpServers={mcpServers}
@@ -403,11 +423,21 @@ function Shell() {
   );
 }
 
+/**
+ * Theme and locale live above the shell so the provider can be swapped without
+ * the shell re-mounting. `Shell` owns the settings state and hands the chosen
+ * mode back up through `onThemeChange` — one level of lifting, in exchange for
+ * every component below reading colours from a single context.
+ */
 export default function App() {
+  const [mode, setMode] = useState<ThemeMode>("system");
+  const systemPrefersDark = useSystemPrefersDark();
+  const tokens = useAppliedTheme(mode, systemPrefersDark);
+
   return (
-    <ThemeProvider value={darkTokens}>
+    <ThemeProvider value={tokens}>
       <I18nProvider>
-        <Shell />
+        <Shell onThemeChange={setMode} />
       </I18nProvider>
     </ThemeProvider>
   );

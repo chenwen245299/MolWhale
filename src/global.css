@@ -1,5 +1,11 @@
+/* Set from React (see `useAppliedTheme`): these drive the parts of the page
+   that live outside the component tree — scrollbars, the body ground behind
+   the panes, and the native form-control rendering `color-scheme` selects. */
 :root {
   color-scheme: dark;
+  --mw-window-base: #141416;
+  --mw-scroll-thumb: rgba(255, 255, 255, 0.16);
+  --mw-scroll-thumb-hover: rgba(255, 255, 255, 0.26);
 }
 
 html,
@@ -11,7 +17,7 @@ body,
 body {
   margin: 0;
   overflow: hidden;
-  background: #141416;
+  background: var(--mw-window-base);
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
@@ -26,14 +32,14 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.16);
+  background-color: var(--mw-scroll-thumb);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.26);
+  background-color: var(--mw-scroll-thumb-hover);
 }
 
 *::-webkit-scrollbar-track {

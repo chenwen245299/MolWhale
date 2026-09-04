@@ -1,7 +1,9 @@
 import { useI18n, useT, LOCALES, type Locale } from "../i18n";
-import { Button, Select, TextArea, TextField } from "../components/ui";
+import { Monitor, Moon, Sun } from "lucide-react";
+
+import { Button, SegmentedControl, Select, TextArea, TextField } from "../components/ui";
 import type { StorageStatus } from "../projects/api";
-import { type as typeScale, useTokens } from "../theme";
+import { type ThemeMode } from "../theme";
 import { SettingsPage, SettingsRow, SettingsSection } from "./layout";
 import { setSettings, type AppSettings } from "./api";
 
@@ -16,7 +18,6 @@ export function GeneralSettings({
   storage: StorageStatus | null;
   onChangeFolder: () => void;
 }) {
-  const tokens = useTokens();
   const t = useT();
   const { setLocale } = useI18n();
 
@@ -46,8 +47,28 @@ export function GeneralSettings({
           </div>
         </SettingsRow>
 
-        <SettingsRow label={t.appearance} description={t.appearanceDarkHint}>
-          <span style={{ ...typeScale.body, color: tokens.textTertiary }}>{t.appearanceDark}</span>
+        <SettingsRow label={t.appearance} description={t.appearanceHint}>
+          <SegmentedControl<ThemeMode>
+            value={settings.theme}
+            onChange={(theme) => void persist({ ...settings, theme })}
+            options={[
+              {
+                value: "light",
+                label: t.appearanceLight,
+                icon: <Sun size={13} strokeWidth={1.75} />,
+              },
+              {
+                value: "dark",
+                label: t.appearanceDark,
+                icon: <Moon size={13} strokeWidth={1.75} />,
+              },
+              {
+                value: "system",
+                label: t.appearanceSystem,
+                icon: <Monitor size={13} strokeWidth={1.75} />,
+              },
+            ]}
+          />
         </SettingsRow>
 
         <SettingsRow label={t.workspaceFolder} description={storage?.rootPath ?? undefined}>

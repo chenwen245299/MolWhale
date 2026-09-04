@@ -1,14 +1,12 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useSyncExternalStore } from "react";
 
 // ── MolWhale design system ──────────────────────────────────────────────────
-// Dark, quiet, Codex-adjacent. The window is near-black; the two rails sit a
-// step above it and content sits a step above that, so depth reads from value
-// alone and the app needs almost no borders. Accent is a cool teal — it marks
-// selection and the send affordance, never body text.
+// Quiet and Codex-adjacent. Depth reads from value alone — each surface sits a
+// step above the one behind it — so the app needs almost no borders. Accent is
+// a teal that marks selection and the send affordance, never body text.
 //
-// Only a dark palette ships today. The token table is the seam where a light
-// one would slot in: every colour in the app comes from `Tokens`, so a second
-// table plus a provider switch is the whole job.
+// Both palettes fill the same `Tokens` shape, and every colour in the app comes
+// from it, so switching themes is one provider value and nothing else.
 
 export const SHELL_HEADER_HEIGHT = 44;
 
@@ -110,6 +108,97 @@ export const darkTokens: Tokens = {
   handleIdle: "transparent",
   handleActive: "rgba(79, 209, 184, 0.45)",
 };
+
+/**
+ * The light palette.
+ *
+ * Not a mechanical inversion. The rail is a step *darker* than content here
+ * (content is the white page, chrome recedes around it), which is the opposite
+ * ordering to dark mode where the rail is lighter than the window — in both
+ * cases the content surface is the one that stands forward. The accent also
+ * darkens: #4FD1B8 carries the right weight on near-black but fails contrast as
+ * a fill behind white text, so light mode uses a deeper teal.
+ */
+export const lightTokens: Tokens = {
+  windowBase: "#E9EBEF",
+  railSurface: "#F1F2F5",
+  contentSurface: "#FFFFFF",
+  cardSurface: "#F5F6F8",
+  overlaySurface: "#FFFFFF",
+  scrim: "rgba(15, 18, 24, 0.28)",
+
+  textPrimary: "#15171B",
+  textSecondary: "#565B64",
+  textTertiary: "#878D97",
+  onAccent: "#FFFFFF",
+
+  separator: "rgba(15, 18, 24, 0.09)",
+  separatorStrong: "rgba(15, 18, 24, 0.16)",
+
+  controlIdle: "rgba(15, 18, 24, 0.04)",
+  controlHover: "rgba(15, 18, 24, 0.07)",
+  controlPressed: "rgba(15, 18, 24, 0.11)",
+  controlBorder: "rgba(15, 18, 24, 0.13)",
+  inputFill: "#FFFFFF",
+
+  accent: "#0E9B82",
+  accentMuted: "rgba(14, 155, 130, 0.13)",
+  selection: "rgba(15, 18, 24, 0.07)",
+  danger: "#C8323E",
+  success: "#1B8A52",
+  warning: "#9A6C15",
+
+  scrollThumb: "rgba(15, 18, 24, 0.20)",
+  handleIdle: "transparent",
+  handleActive: "rgba(14, 155, 130, 0.45)",
+};
+
+export type ThemeMode = "light" | "dark" | "system";
+
+const darkQuery = () =>
+  typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+
+// Hoisted so their identity is stable: `useSyncExternalStore` resubscribes
+// whenever `subscribe` changes, and an inline closure would tear down and
+// re-add the media-query listener on every single render.
+function subscribeToSystemTheme(onChange: () => void): () => void {
+  const query = darkQuery();
+  query?.addEventListener("change", onChange);
+  return () => query?.removeEventListener("change", onChange);
+}
+
+function getSystemPrefersDark(): boolean {
+  return darkQuery()?.matches ?? true;
+}
+
+// Server/prerender has no media query; dark matches the app's own default.
+const getSystemPrefersDarkServer = () => true;
+
+/**
+ * Whether the OS is currently in dark mode, as a live subscription.
+ *
+ * `useSyncExternalStore` rather than an effect: the media query *is* an
+ * external store, and this way there is no render-then-correct flash when the
+ * system flips, and no setState inside an effect.
+ */
+export function useSystemPrefersDark(): boolean {
+  return useSyncExternalStore(
+    subscribeToSystemTheme,
+    getSystemPrefersDark,
+    getSystemPrefersDarkServer,
+  );
+}
+
+export function resolveTokens(mode: ThemeMode, systemPrefersDark: boolean): Tokens {
+  if (mode === "system") return systemPrefersDark ? darkTokens : lightTokens;
+  return mode === "dark" ? darkTokens : lightTokens;
+}
+
+export function isDarkMode(mode: ThemeMode, systemPrefersDark: boolean): boolean {
+  return mode === "system" ? systemPrefersDark : mode === "dark";
+}
 
 /** Type scale. Sizes are in px; RNW maps them straight through. */
 export const type = {

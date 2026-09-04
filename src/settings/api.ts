@@ -1,14 +1,16 @@
 import { invoke, isTauri } from "../tauri";
 import type { Locale } from "../i18n";
+import type { ThemeMode } from "../theme";
 
 export interface AppSettings {
   locale: Locale;
+  theme: ThemeMode;
   maxToolRounds: number;
   systemPrompt: string;
 }
 
 const preview: { settings: AppSettings } = {
-  settings: { locale: "zh-CN", maxToolRounds: 8, systemPrompt: "" },
+  settings: { locale: "zh-CN", theme: "system", maxToolRounds: 8, systemPrompt: "" },
 };
 
 export async function getSettings(): Promise<AppSettings> {

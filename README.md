@@ -117,6 +117,24 @@ src/
 Rust 侧一个域一个模块，命令统一在 `lib.rs` 的 `invoke_handler` 注册，
 错误类型统一 `Result<T, String>`，serde 结构统一 `camelCase`。
 
+## 主题
+
+三种模式：浅色、深色、跟随系统（默认），存在工作区配置里。所有颜色都出自
+`theme.ts` 的 `Tokens`，两套调色板填的是同一个 shape，所以切换主题只是换一个
+context value。
+
+浅色不是深色的机械反转：深色模式里侧栏比窗口底色**亮**一档，浅色模式里侧栏比内容区
+**暗**一档 —— 两边都是让内容区站到最前。强调色也换了，`#4FD1B8` 在近黑背景上分量
+合适，但作为白字背后的填充对比度不够，浅色用的是更深的 `#0E9B82`。
+
+「跟随系统」用 `useSyncExternalStore` 订阅 `prefers-color-scheme`，而不是 effect +
+setState —— media query 本身就是一个外部 store，这样系统切换时不会先渲染错再纠正。
+
+有三处在 React 树之外，必须单独同步（见 `shell/useAppliedTheme.ts`）：根元素的
+`color-scheme`（决定原生控件和默认滚动条的画法）、`global.css` 里的 CSS 变量
+（body 底色和滚动条滑块，它们读不到 token context）、以及 **Tauri 窗口自身的背景色**
+—— 不设这个，浅色模式下启动和拖拽窗口时会闪一下 `tauri.conf.json` 里那个深色底。
+
 ## 左侧栏
 
 顶部是折叠按钮，下面依次是 `+ 新建`（在选中项目下建对话）、`Workflows`（占位），
@@ -146,5 +164,4 @@ Rust 侧一个域一个模块，命令统一在 `lib.rs` 的 `invoke_handler` �
 
 - 任何分子领域功能（渲染、力场、格式解析）
 - Markdown 渲染（消息目前按纯文本渲染）
-- 亮色主题（token 表已留好接口）
 - 自动更新与打包签名

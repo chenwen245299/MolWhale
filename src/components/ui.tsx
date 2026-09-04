@@ -394,3 +394,67 @@ export function Banner({ message, onDismiss }: { message: string; onDismiss?: ()
     </div>
   );
 }
+
+/**
+ * A small run of mutually exclusive options.
+ *
+ * Used where a `<select>` would be heavier than the choice deserves — three
+ * appearance modes are better shown than hidden behind a dropdown, since the
+ * whole point is picking one and seeing the result immediately.
+ */
+export function SegmentedControl<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { value: T; label: string; icon?: ReactNode }[];
+  onChange: (value: T) => void;
+}) {
+  const tokens = useTokens();
+
+  return (
+    <div
+      role="radiogroup"
+      style={{
+        display: "inline-flex",
+        gap: 2,
+        padding: 2,
+        borderRadius: radius.md,
+        background: tokens.controlIdle,
+        border: `1px solid ${tokens.controlBorder}`,
+      }}
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            title={option.label}
+            onClick={() => onChange(option.value)}
+            style={{
+              ...typeScale.caption,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: space(1),
+              padding: `${space(1)}px ${space(2)}px`,
+              borderRadius: radius.sm,
+              border: "none",
+              cursor: "pointer",
+              background: active ? tokens.overlaySurface : "transparent",
+              color: active ? tokens.textPrimary : tokens.textSecondary,
+              boxShadow: active ? "0 1px 2px rgba(0, 0, 0, 0.18)" : "none",
+              transition: "background 120ms ease, color 120ms ease",
+            }}
+          >
+            {option.icon}
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
